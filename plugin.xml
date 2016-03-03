@@ -152,6 +152,7 @@ not sure if this is correct, it creates a second application tag in the manifest
         <resource-file src="src/ios/Graphics/AppIcon-152.png"/>
         <resource-file src="src/ios/Graphics/AppIcon-180.png"/>
         <resource-file src="src/ios/Graphics/Default-568h@2x.png"/>
+        <resource-file src="src/ios/Graphics/Reader-Back@2x.png"/>
         <resource-file src="src/ios/Graphics/Reader-Button-H.png"/>
         <resource-file src="src/ios/Graphics/Reader-Button-H@2x.png"/>
         <resource-file src="src/ios/Graphics/Reader-Button-N.png"/>
