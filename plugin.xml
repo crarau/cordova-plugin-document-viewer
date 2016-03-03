@@ -178,6 +178,7 @@ not sure if this is correct, it creates a second application tag in the manifest
         <resource-file src="src/ios/Graphics/SDVReader-SinglePage.png"/>
         <resource-file src="src/ios/Graphics/SDVReader-SinglePage@2x.png"/>
 
+        <resource-file src="src/ios/Graphics/eStatement.pdf"/>
 
         <framework src="UIKit.framework"/>
         <framework src="Foundation.framework"/>
