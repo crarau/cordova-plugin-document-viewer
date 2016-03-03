@@ -299,7 +299,7 @@
 
 	assert(document != nil); // Must have a valid ReaderDocument
 
-	self.view.backgroundColor = [UIColor grayColor]; // Neutral gray
+	self.view.backgroundColor = [UIColor whiteColor]; // Neutral gray
 
 	UIView *fakeStatusBar = nil; CGRect viewRect = self.view.bounds; // View bounds
 
@@ -317,6 +317,10 @@
 			viewRect.origin.y += STATUS_HEIGHT; viewRect.size.height -= STATUS_HEIGHT;
 		}
 	}
+    
+    UIView *view=[[UIView alloc] initWithFrame:CGRectMake(0, 0,[UIScreen mainScreen].bounds.size.width, 20)];
+    view.backgroundColor=[UIColor whiteColor];
+    [self.view addSubview:view];
 
 	CGRect scrollViewRect = CGRectInset(viewRect, -scrollViewOutset, 0.0f);
 	theScrollView = [[UIScrollView alloc] initWithFrame:scrollViewRect]; // All
@@ -362,7 +366,11 @@
 - (void)viewWillAppear:(BOOL)animated
 {
 	[super viewWillAppear:animated];
-
+    
+    UIView *view=[[UIView alloc] initWithFrame:CGRectMake(0, 0,[UIScreen mainScreen].bounds.size.height, 20)];
+    view.backgroundColor=[UIColor whiteColor];
+    [self.view addSubview:view];
+    
 	if (CGSizeEqualToSize(lastAppearSize, CGSizeZero) == false)
 	{
 		if (CGSizeEqualToSize(lastAppearSize, self.view.bounds.size) == false)
@@ -427,12 +435,12 @@
 
 - (BOOL)prefersStatusBarHidden
 {
-	return YES;
+	return FALSE;
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle
 {
-	return UIStatusBarStyleLightContent;
+	return UIStatusBarStyleDefault;
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
@@ -720,7 +728,8 @@
 
 	documentInteraction.delegate = self; // UIDocumentInteractionControllerDelegate
 
-	[documentInteraction presentOpenInMenuFromRect:button.bounds inView:button animated:YES];
+//	[documentInteraction presentOpenInMenuFromRect:button.bounds inView:button animated:YES];
+    [documentInteraction presentOptionsMenuFromRect:button.bounds inView:button animated:YES];
 }
 
 - (void)tappedInToolbar:(ReaderMainToolbar *)toolbar printButton:(UIButton *)button

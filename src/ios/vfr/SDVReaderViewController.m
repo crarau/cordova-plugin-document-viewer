@@ -1048,6 +1048,7 @@
 //    mainToolbar = [[ReaderMainToolbar alloc] initWithFrame:toolbarRect document:document]; // ReaderMainToolbar
     mainToolbar = [[SDVReaderMainToolbar alloc] initWithFrame:toolbarRect document:document options:self.viewerOptions]; // customised ReaderMainToolbar
     mainToolbar.delegate = self; // ReaderMainToolbarDelegate
+    mainToolbar.backgroundColor = [UIColor whiteColor];
     [self.view addSubview:mainToolbar];
     
     CGRect pagebarRect = self.view.bounds; pagebarRect.size.height = PAGEBAR_HEIGHT;

@@ -31,7 +31,7 @@
 #define SHOW_CONTROL_WIDTH 117.0f
 #define ICON_BUTTON_WIDTH 40.0f
 
-#define TITLE_FONT_SIZE 19.0f
+#define TITLE_FONT_SIZE 17.0f
 #define TITLE_HEIGHT 28.0f
 
 //  this is just testcode to provide default options for the original method call
@@ -122,16 +122,20 @@
         NSLog(@"[pdfviewer] toolbar-options close label: %@", toolbarOptionCloseLabel);
         NSString *doneButtonText = toolbarOptionCloseLabel?:NSLocalizedString(@"Done", @"button");
         CGSize doneButtonSize = [doneButtonText sizeWithFont:doneButtonFont];
-        CGFloat doneButtonWidth = (doneButtonSize.width + TEXT_BUTTON_PADDING);
+        CGFloat doneButtonWidth = 35;
         
         UIButton *doneButton = [UIButton buttonWithType:UIButtonTypeCustom];
         doneButton.frame = CGRectMake(leftButtonX, BUTTON_Y, doneButtonWidth, BUTTON_HEIGHT);
-        [doneButton setTitleColor:[UIColor colorWithWhite:0.0f alpha:1.0f] forState:UIControlStateNormal];
+
+        /*[doneButton setTitleColor:[UIColor colorWithWhite:0.0f alpha:1.0f] forState:UIControlStateNormal];
         [doneButton setTitleColor:[UIColor colorWithWhite:1.0f alpha:1.0f] forState:UIControlStateHighlighted];
         [doneButton setTitle:doneButtonText forState:UIControlStateNormal]; doneButton.titleLabel.font = doneButtonFont;
+         */
         [doneButton addTarget:self action:@selector(doneButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
-        [doneButton setBackgroundImage:buttonH forState:UIControlStateHighlighted];
-        [doneButton setBackgroundImage:buttonN forState:UIControlStateNormal];
+        
+        UIImage *buttonBackImage = [UIImage imageNamed:@"Reader-Back"];
+        [doneButton setImage:buttonBackImage forState:UIControlStateNormal];
+//        [doneButton setBackgroundImage:buttonBackImage forState:UIControlStateNormal];
         doneButton.autoresizingMask = UIViewAutoresizingNone;
         //doneButton.backgroundColor = [UIColor grayColor];
         doneButton.exclusiveTouch = YES;
@@ -144,21 +148,26 @@
         
 #if (READER_ENABLE_THUMBS == TRUE) // Option
         //don't show navigation view for single page documents
-        if ([document.pageCount intValue] > 1)
-        {
-            UIButton *thumbsButton = [UIButton buttonWithType:UIButtonTypeCustom];
-            thumbsButton.frame = CGRectMake(leftButtonX, BUTTON_Y, iconButtonWidth, BUTTON_HEIGHT);
-            [thumbsButton setImage:[UIImage imageNamed:@"SDVReader-Outline"] forState:UIControlStateNormal];
-            [thumbsButton addTarget:self action:@selector(thumbsButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
-            [thumbsButton setBackgroundImage:buttonH forState:UIControlStateHighlighted];
-            [thumbsButton setBackgroundImage:buttonN forState:UIControlStateNormal];
-            thumbsButton.autoresizingMask = UIViewAutoresizingNone;
-            //thumbsButton.backgroundColor = [UIColor grayColor];
-            thumbsButton.exclusiveTouch = YES;
+        BOOL toolbarOptionThumbs = [[[options objectForKey: @"thumbs"] objectForKey: @"enabled"] boolValue];
+        NSLog(@"[pdfviewer] toolbar-options bookmarks: %d", toolbarOptionThumbs);
+        if (toolbarOptionThumbs) {
             
-            [self addSubview:thumbsButton]; //leftButtonX += (iconButtonWidth + buttonSpacing);
-            
-            titleX += (iconButtonWidth + buttonSpacing); titleWidth -= (iconButtonWidth + buttonSpacing);
+            if ([document.pageCount intValue] > 1)
+            {
+                UIButton *thumbsButton = [UIButton buttonWithType:UIButtonTypeCustom];
+                thumbsButton.frame = CGRectMake(leftButtonX, BUTTON_Y, iconButtonWidth, BUTTON_HEIGHT);
+                [thumbsButton setImage:[UIImage imageNamed:@"SDVReader-Outline"] forState:UIControlStateNormal];
+                [thumbsButton addTarget:self action:@selector(thumbsButtonTapped:) forControlEvents:UIControlEventTouchUpInside];
+                [thumbsButton setBackgroundImage:buttonH forState:UIControlStateHighlighted];
+                [thumbsButton setBackgroundImage:buttonN forState:UIControlStateNormal];
+                thumbsButton.autoresizingMask = UIViewAutoresizingNone;
+                //thumbsButton.backgroundColor = [UIColor grayColor];
+                thumbsButton.exclusiveTouch = YES;
+                
+                [self addSubview:thumbsButton]; //leftButtonX += (iconButtonWidth + buttonSpacing);
+                
+                titleX += (iconButtonWidth + buttonSpacing); titleWidth -= (iconButtonWidth + buttonSpacing);
+            }
         }
 #endif // end of READER_ENABLE_THUMBS Option
         
@@ -271,37 +280,42 @@
             }
         }
         
-        //view modes
-        UIImage *singlePageButton = [UIImage imageNamed:@"SDVReader-SinglePage"];
-        UIImage *doublePageButton = [UIImage imageNamed:@"SDVReader-DoublePage"];
-        UIImage *coverPageButton = [UIImage imageNamed:@"SDVReader-CoverPage"];
-        NSArray *buttonItems = [NSArray arrayWithObjects:singlePageButton, doublePageButton, coverPageButton, nil];
-        
-        BOOL useTint = [self respondsToSelector:@selector(tintColor)]; // iOS 7 and up
-
-        //don't show viewmode for single page documents
-        if ([document.pageCount intValue] > 1)
-        {
-        rightButtonX -= (SHOW_CONTROL_WIDTH + buttonSpacing); // Next position
-        
-        UISegmentedControl *showControl = [[UISegmentedControl alloc] initWithItems:buttonItems];
-        showControl.frame = CGRectMake(rightButtonX, BUTTON_Y, SHOW_CONTROL_WIDTH, BUTTON_HEIGHT);
-        showControl.tintColor = (useTint ? [UIColor blackColor] : [UIColor colorWithWhite:0.8f alpha:1.0f]);
-        showControl.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin;
-        showControl.segmentedControlStyle = UISegmentedControlStyleBar;
-        showControl.selectedSegmentIndex = 0; // Default segment index
-        //showControl.backgroundColor = [UIColor grayColor];
-        showControl.exclusiveTouch = YES;
-        
-        [showControl addTarget:self action:@selector(showControlTapped:) forControlEvents:UIControlEventValueChanged];
-        
-        [self addSubview:showControl];
-        //adjust available width for document title
-        titleWidth -= (SHOW_CONTROL_WIDTH + buttonSpacing);
+        BOOL toolbarOptionViewModes = [[[options objectForKey: @"viewModes"] objectForKey: @"enabled"] boolValue];
+        NSLog(@"[pdfviewer] toolbar-options view modes: %d", toolbarOptionViewModes);
+        if (toolbarOptionViewModes) {
+            //view modes
+            UIImage *singlePageButton = [UIImage imageNamed:@"SDVReader-SinglePage"];
+            UIImage *doublePageButton = [UIImage imageNamed:@"SDVReader-DoublePage"];
+            UIImage *coverPageButton = [UIImage imageNamed:@"SDVReader-CoverPage"];
+            NSArray *buttonItems = [NSArray arrayWithObjects:singlePageButton, doublePageButton, coverPageButton, nil];
+            
+            BOOL useTint = [self respondsToSelector:@selector(tintColor)]; // iOS 7 and up
+            
+            //don't show viewmode for single page documents
+            if ([document.pageCount intValue] > 1)
+            {
+                rightButtonX -= (SHOW_CONTROL_WIDTH + buttonSpacing); // Next position
+                
+                UISegmentedControl *showControl = [[UISegmentedControl alloc] initWithItems:buttonItems];
+                showControl.frame = CGRectMake(rightButtonX, BUTTON_Y, SHOW_CONTROL_WIDTH, BUTTON_HEIGHT);
+                showControl.tintColor = (useTint ? [UIColor blackColor] : [UIColor colorWithWhite:0.8f alpha:1.0f]);
+                showControl.autoresizingMask = UIViewAutoresizingFlexibleLeftMargin;
+                showControl.segmentedControlStyle = UISegmentedControlStyleBar;
+                showControl.selectedSegmentIndex = 0; // Default segment index
+                //showControl.backgroundColor = [UIColor grayColor];
+                showControl.exclusiveTouch = YES;
+                
+                [showControl addTarget:self action:@selector(showControlTapped:) forControlEvents:UIControlEventValueChanged];
+                
+                [self addSubview:showControl];
+                //adjust available width for document title
+                titleWidth -= (SHOW_CONTROL_WIDTH + buttonSpacing);
+            }
         }
+
         
-        if (largeDevice == YES) // Show document filename in toolbar
-        {
+        //if (largeDevice == YES) // Show document filename in toolbar
+        //{
             CGRect titleRect = CGRectMake(titleX, BUTTON_Y, titleWidth, TITLE_HEIGHT);
             
             UILabel *titleLabel = [[UILabel alloc] initWithFrame:titleRect];
@@ -314,6 +328,7 @@
             titleLabel.backgroundColor = [UIColor clearColor];
             titleLabel.adjustsFontSizeToFitWidth = YES;
             titleLabel.minimumScaleFactor = 0.75f;
+            titleLabel.textColor = [UIColor colorWithRed:51/255.0 green:49/255.0 blue:50/255.0 alpha:1];
             //get title from options
             NSString *toolbarOptionTitle = [options objectForKey: @"title"];
             NSLog(@"[pdfviewer] toolbar-options title label: %@", toolbarOptionTitle);
@@ -321,10 +336,11 @@
 #if (READER_FLAT_UI == FALSE) // Option
             titleLabel.shadowColor = [UIColor colorWithWhite:0.75f alpha:1.0f];
             titleLabel.shadowOffset = CGSizeMake(0.0f, 1.0f);
+        
 #endif // end of READER_FLAT_UI Option
             
             [self addSubview:titleLabel];
-        }
+        //}
     }
     
     return self;
